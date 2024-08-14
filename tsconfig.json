@@ -1,0 +1,54 @@
+{
+  "ts-node" : {
+    "require" : [
+      "tsconfig-paths/register"
+    ]
+  },
+  "compilerOptions" : {
+    "baseUrl" : "./src",
+    // path to output directory
+    "outDir" : "./dist/",
+    // Import non-ES modules as default imports.
+    "esModuleInterop" : true,
+    // Target latest version of ECMAScript.
+    "target" : "es6",
+    "module": "commonjs",
+    // Process & infer types from .js files.
+    "allowJs" : true,
+    // Search under node_modules for non-relative imports.
+    "moduleResolution" : "node",
+    "importHelpers" : false,
+    "preserveConstEnums" : true,
+    "experimentalDecorators" : true,
+    "emitDecoratorMetadata" : true,
+    "paths" : {
+      "config/*" : [
+        "config/*"
+      ],
+      "controllers/*" : [
+        "controllers/*"
+      ],
+      "data/*" : [
+        "data/*"
+      ],
+      "db/*" : [
+        "db/*"
+      ],
+      "services/*" : [
+        "services/*"
+      ],
+      "types/*" : [
+        "types/*"
+      ],
+      "utils/*" : [
+        "utils/*"
+      ]
+    }
+  },
+  "include" : [
+    "./src/"
+  ],
+  "exclude" : [
+    "node_modules"
+  ]
+}
