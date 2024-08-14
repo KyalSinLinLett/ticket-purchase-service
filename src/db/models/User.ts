@@ -1,7 +1,7 @@
 import moment from 'moment';
-import { Model, DataTypes, Sequelize } from 'sequelize';
+import { Model, DataTypes, Sequelize, InferAttributes, InferCreationAttributes } from 'sequelize';
 
-export class User extends Model {
+export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     public id!: string;
     public email!: string;
     public password_hash!: string;
@@ -12,8 +12,8 @@ export class User extends Model {
     public country!: string;
     public last_login_at!: Date;
     public is_active!: boolean;
-    public readonly created_at!: Date;
-    public readonly updated_at!: Date;
+    public created_at!: Date;
+    public updated_at!: Date;
 }
 
 export const init = (sequelize: Sequelize): void => {

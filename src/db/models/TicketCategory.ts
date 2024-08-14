@@ -1,7 +1,7 @@
-import { Model, DataTypes, Sequelize } from 'sequelize';
-import { TicketCategories } from 'types/models';
+import { Model, DataTypes, Sequelize, InferCreationAttributes, InferAttributes } from 'sequelize';
+import { TicketCategories } from "types/models/ticketCategory"
 
-export class TicketCategory extends Model {
+export class TicketCategory extends Model<InferAttributes<TicketCategory>, InferCreationAttributes<TicketCategory>> {
     public id!: string;
     public event_id!: string;
     public category!: TicketCategories;
