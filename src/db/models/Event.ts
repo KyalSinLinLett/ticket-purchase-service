@@ -2,15 +2,15 @@ import moment from 'moment';
 import { Model, DataTypes, Sequelize, InferAttributes, InferCreationAttributes } from 'sequelize';
 
 export class Event extends Model<InferAttributes<Event>, InferCreationAttributes<Event>> {
-    public id!: string;
-    public name!: string;
-    public description?: string;
-    public start_time!: Date;
-    public end_time!: Date;
-    public venue!: string;
-    public created_by!: string;
-    public created_at!: Date;
-    public updated_at!: Date;
+    declare id: string;
+    declare name: string;
+    declare description?: string;
+    declare start_time: Date;
+    declare end_time: Date;
+    declare venue: string;
+    declare created_by: string;
+    declare created_at: Date;
+    declare updated_at: Date;
 }
 
 export const init = (sequelize: Sequelize): void => {

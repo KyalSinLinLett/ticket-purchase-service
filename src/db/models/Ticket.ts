@@ -1,12 +1,12 @@
 import { Model, DataTypes, Sequelize, InferAttributes, InferCreationAttributes } from 'sequelize';
 
 export class Ticket extends Model<InferAttributes<Ticket>, InferCreationAttributes<Ticket>> {
-    public id!: string;
-    public event_id!: string;
-    public user_id!: string;
-    public ticket_category_id!: string;
-    public price!: number;
-    public purchased_at!: Date;
+    declare id: string;
+    declare event_id: string;
+    declare user_id: string;
+    declare ticket_category_id: string;
+    declare price: number;
+    declare purchased_at: Date;
 }
 
 export const init = (sequelize: Sequelize): void => {

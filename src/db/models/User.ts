@@ -2,18 +2,18 @@ import moment from 'moment';
 import { Model, DataTypes, Sequelize, InferAttributes, InferCreationAttributes } from 'sequelize';
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
-    public id!: string;
-    public email!: string;
-    public password_hash!: string;
-    public first_name!: string;
-    public last_name!: string;
-    public phone_number!: string;
-    public dob!: Date;
-    public country!: string;
-    public last_login_at!: Date;
-    public is_active!: boolean;
-    public created_at!: Date;
-    public updated_at!: Date;
+    declare id: string;
+    declare email: string;
+    declare password_hash: string;
+    declare first_name: string;
+    declare last_name: string;
+    declare phone_number: string;
+    declare dob: Date;
+    declare country: string;
+    declare last_login_at: Date;
+    declare is_active: boolean;
+    declare created_at: Date;
+    declare updated_at: Date;
 }
 
 export const init = (sequelize: Sequelize): void => {
