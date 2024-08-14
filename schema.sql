@@ -1,53 +1,59 @@
-CREATE TABLE `statistic_record` (
-  `id` bigint NOT NULL,
-  `record_datetime` datetime DEFAULT NULL,
-  `new_user_count` bigint unsigned DEFAULT NULL,
-  `total_user_count` bigint unsigned DEFAULT NULL,
-  `active_user_count` bigint unsigned DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `new_user_android` bigint DEFAULT '0',
-  `active_user_web` bigint DEFAULT '0',
-  `active_user_ios` bigint DEFAULT '0',
-  `active_user_android` bigint DEFAULT '0',
-  `total_user_web` bigint DEFAULT '0',
-  `total_user_ios` bigint DEFAULT '0',
-  `total_user_android` bigint DEFAULT '0',
-  `new_user_web` bigint DEFAULT '0',
-  `new_user_ios` bigint DEFAULT '0',
-  `active_p2p_chat` bigint DEFAULT '0',
-  `active_group_chat` bigint DEFAULT '0',
-  `total_call` bigint DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE cmsdb.users (
-    id BIGINT NOT NULL,
-    name VARCHAR(255) DEFAULT NULL,
-    username VARCHAR(255) DEFAULT NULL,
-    email VARCHAR(255) DEFAULT NULL,
-    password_hash VARCHAR(255) DEFAULT NULL,
-    phone_number VARCHAR(255) DEFAULT NULL,
-    `role` VARCHAR(255) DEFAULT NULL,
-    CONSTRAINT users_pk PRIMARY KEY (id)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'ticket_category') THEN
+        CREATE TYPE ticket_category AS ENUM ('VIP', 'General Admissions', 'Early Bird');
+    END IF;
+END
+$$;
 
-ALTER TABLE
-    cmsdb.users
-ADD
-    created_at DATETIME NULL;
 
-ALTER TABLE
-    cmsdb.users
-ADD
-    updated_at DATETIME NULL;
+CREATE table IF NOT exists users  (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(255) NOT NULL,
+    dob DATE,
+    country VARCHAR(255) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
+    last_login_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-CREATE TABLE cmsdb.access_token (
-    token VARCHAR(255) PRIMARY KEY,
-    user_id BIGINT,
-    expiry DATETIME,
-    invalidated BOOLEAN DEFAULT false,
-    user_agent TEXT,
-    registration_datetime DATETIME,
-    CONSTRAINT fk_user_access_token FOREIGN KEY (user_id) REFERENCES users(id)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+CREATE table IF NOT exists events (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    venue VARCHAR(255) NOT NULL,
+    created_by UUID NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE table IF NOT exists ticket_categories (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    event_id UUID NOT NULL,
+    category ticket_category NOT NULL,
+    max_count INTEGER NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+);
+
+CREATE table IF NOT exists tickets (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    event_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    ticket_category_id UUID NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (ticket_category_id) REFERENCES ticket_categories(id) ON DELETE CASCADE
+);
