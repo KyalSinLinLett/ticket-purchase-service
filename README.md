@@ -32,4 +32,9 @@ yarn test
 docker build . -t ticket-purchase-service:latest
 ```
 
-7. view OpenAPI swagger locally at: [here]()
+7. view OpenAPI swagger locally at: [here](http://localhost:3010/docs/)
+
+8. building docs - in the case of updates in api specs
+```bash
+npx @redocly/cli build-docs ./src/docs/api-spec.yaml -o ./src/docs/api-spec.html
+```

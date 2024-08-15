@@ -28,6 +28,7 @@ import { UserRepository } from 'services/user/user.repository'
 import { HEALTH } from 'data/route'
 import { ValidationChain, validationResult } from 'express-validator'
 import { NO_AUTH_PATHS } from 'data/constants'
+import path from 'path'
 const userRepository = new UserRepository()
 const userService = new UserService(userRepository)
 
@@ -124,9 +125,14 @@ export class App {
     this.route(HEALTH, this.healthCheck, [])
 
     app.use(cors({ origin: '*' }))
-    app.use(helmet())
     app.use(bodyParser.json())
     app.use(useragent.express())
+    // api doc
+    app.use(express.static(path.join(__dirname, '/docs')))
+    app.get('/docs', async (req, res) => {
+      res.sendFile(path.join(__dirname, '/docs', 'api-spec.html'))
+    })
+    app.use(helmet())
 
     for (const routePath in this.routeMap) {
       if (NO_AUTH_PATHS.includes(routePath)) {

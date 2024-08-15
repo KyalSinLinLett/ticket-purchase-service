@@ -1,0 +1,230 @@
+openapi: 3.0.0
+info:
+    title: Ticket Purchase Service API Documentation
+    version: 1.0.0
+servers:
+    - url: http://localhost:3010
+components:
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+paths:
+    /ticket-api/event/new:
+        post:
+            tags:
+                - event
+            summary: new event
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            example:
+                                name: event_A
+                                description: event_A_description
+                                start_time: "2024-08-14T22:55:24.032Z"
+                                end_time: "2024-08-21T22:55:24.032Z"
+                                venue: event_A_venue
+                                created_by: 0015eb5c-4991-403e-8ea0-503cae1204dc
+                                ticket_categories:
+                                    - category: VIP
+                                      max_count: 10
+                                      price: "10.50"
+                                    - category: EB
+                                      max_count: 5
+                                      price: "12.50"
+                                    - category: GA
+                                      max_count: 25
+                                      price: "9.50"
+            security:
+                - bearerAuth: []
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json: {}
+    /ticket-api/event/edit:
+        post:
+            tags:
+                - event
+            summary: edit event
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            example:
+                                id: d3311e1c-003c-4d59-8df7-930afa228201
+                                name: event_A edited
+                                description: event_A_description edited
+                                start_time: "2024-08-15T22:55:24.032Z"
+                                end_time: "2024-08-25T22:55:24.032Z"
+                                venue: event_A_venue edited
+            security:
+                - bearerAuth: []
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json: {}
+    /ticket-api/ticket/category/edit:
+        post:
+            tags:
+                - ticket
+            summary: edit ticket category
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            example:
+                                id: d449c1e8-e5ba-40e3-9d60-41b56c9a4d15
+                                max_count: 1000
+                                price: "120.65"
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json: {}
+    /ticket-api/ticket/purchase:
+        post:
+            tags:
+                - ticket
+            summary: purchase ticket
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            example:
+                                ticket_category_id: 72d5f1b2-8fb9-4f66-a0b4-ab1be943385c
+            security:
+                - bearerAuth: []
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json: {}
+    /ticket-api/event/detail:
+        post:
+            tags:
+                - event
+            summary: get event detail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            example:
+                                id: 107561f5-fe7e-4cd6-b138-2faa0f816669
+            security:
+                - bearerAuth: []
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json: {}
+    /ticket-api/event/list:
+        post:
+            tags:
+                - event
+            summary: get all events
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            example:
+                                name: Concert
+            security:
+                - bearerAuth: []
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json: {}
+    /ticket-api/event/tickets:
+        post:
+            tags:
+                - event
+            summary: get event tickets
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            example:
+                                event_id: d64ae02f-9260-4d79-8459-d983c1daf39c
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json: {}
+    /ticket-api/user/tickets:
+        post:
+            tags:
+                - user
+            summary: get user tickets
+            requestBody:
+                content: {}
+            security:
+                - bearerAuth: []
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json: {}
+    /ticket-api/user/new:
+        post:
+            tags:
+                - user
+            summary: new user
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            example:
+                                email: tester222@gmail.com
+                                password: tester222
+                                first_name: tester
+                                last_name: retset
+                                phone_number: "+66612341234"
+                                dob: "2000-01-01"
+                                country: SG
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json: {}
+    /ticket-api/user/authenticate:
+        post:
+            tags:
+                - user
+            summary: auth user
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            example:
+                                email: tester333@gmail.com
+                                password: tester333
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json: {}
+    /ticket-api/health:
+        get:
+            tags:
+                - event
+            summary: health check
+            security:
+                - bearerAuth: []
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json: {}
