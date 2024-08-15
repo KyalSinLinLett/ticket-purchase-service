@@ -23,6 +23,7 @@ import {
   listEventsValidator,
   newEventValidator,
 } from 'utils/validators'
+import { getEventDto } from 'types/models/event'
 
 export class EventController {
   app: App
@@ -44,21 +45,27 @@ export class EventController {
     res,
     next,
   ): Promise<JsonResponse> => {
-    const { id, name, description, start_time, end_time, venue } = req.body
-
-    const updateData: InferAttributes<Event> = { updated_at: moment().toDate() }
-    if (name) updateData['name'] = name
-    if (description) updateData['description'] = description
-    if (start_time) updateData['start_time'] = start_time
-    if (end_time) updateData['end_time'] = end_time
-    if (venue) updateData['venue'] = venue
-
     try {
+      const { id, name, description, start_time, end_time, venue } = req.body
+
+      const updateData: InferAttributes<Event> = {
+        updated_at: moment().toDate(),
+      }
+      if (name) updateData['name'] = name
+      if (description) updateData['description'] = description
+      if (start_time) updateData['start_time'] = start_time
+      if (end_time) updateData['end_time'] = end_time
+      if (venue) updateData['venue'] = venue
+
       const event = await this.eventService.updateEvent(id, updateData)
+
+      return res.status(HttpStatusCode.OK).json({
+        status: 1,
+        message: 'event edit success!',
+        data: getEventDto(event),
+      })
     } catch (error) {
-      return res
-        .status(HttpStatusCode.BAD_REQUEST)
-        .json({ status: 0, message: error.message })
+      next(error)
     }
   }
 
@@ -71,9 +78,13 @@ export class EventController {
       // todo: add filters for the listing + pagination
       const { name } = req.body
 
-      const result = await this.eventService.getAllEvents(name)
+      const events = await this.eventService.getAllEvents(name)
 
-      return res.status(200).json(result)
+      return res.status(HttpStatusCode.OK).json({
+        status: 1,
+        message: 'events list success!',
+        data: events.map((e: Event) => getEventDto(e)),
+      })
     } catch (e) {
       next(e)
     }
@@ -87,9 +98,13 @@ export class EventController {
     try {
       const { id } = req.body
 
-      const result = await this.eventService.getEventById(id)
+      const event = await this.eventService.getEventById(id)
 
-      return res.status(200).json(result)
+      return res.status(HttpStatusCode.OK).json({
+        status: 1,
+        message: 'event fetch success!',
+        data: getEventDto(event),
+      })
     } catch (e) {
       next(e)
     }
@@ -136,9 +151,13 @@ export class EventController {
         }),
       )
 
-      const result = await this.eventService.getEventById(event.id)
+      const newEvent = await this.eventService.getEventById(event.id)
 
-      return res.status(200).json(result)
+      return res.status(HttpStatusCode.OK).json({
+        status: 1,
+        message: 'event create success!',
+        data: getEventDto(newEvent),
+      })
     } catch (e) {
       next(e)
     }

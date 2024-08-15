@@ -18,6 +18,8 @@ import {
   purchaseTicketValidator,
   userPurchasedTicketsValidator,
 } from 'utils/validators'
+import { getTicketCategoryDto } from 'types/models/ticketCategory'
+import { getTicketDto } from 'types/models/ticket'
 
 export class TicketController {
   app: App
@@ -49,7 +51,11 @@ export class TicketController {
       const ticketCategory =
         await this.ticketCategoryService.updateTicketCategory(id, updateData)
 
-      return res.status(200).json(ticketCategory)
+      return res.status(200).json({
+        status: 1,
+        message: 'edit ticket category success',
+        data: getTicketCategoryDto(ticketCategory),
+      })
     } catch (e) {
       next(e)
     }
@@ -67,7 +73,11 @@ export class TicketController {
         user_id ? { where: { user_id } } : {},
       )
 
-      return res.status(200).json(tickets)
+      return res.status(200).json({
+        status: 1,
+        message: 'get purchased tickets success',
+        data: tickets.map((t: Ticket) => getTicketDto(t)),
+      })
     } catch (e) {
       console.log(e)
     }
@@ -85,7 +95,11 @@ export class TicketController {
         event_id ? { where: { event_id } } : {},
       )
 
-      return res.status(200).json(tickets)
+      return res.status(200).json({
+        status: 1,
+        message: 'get event tickets success',
+        data: tickets.map((t: Ticket) => getTicketDto(t)),
+      })
     } catch (e) {
       next(e)
     }
@@ -131,7 +145,11 @@ export class TicketController {
         { max_count: maxCount - 1 },
       )
 
-      return res.status(200).json(purchasedTicket)
+      return res.status(200).json({
+        status: 1,
+        message: 'purchase tickets success',
+        data: getTicketDto(purchasedTicket),
+      })
     } catch (e) {
       next(e)
     }

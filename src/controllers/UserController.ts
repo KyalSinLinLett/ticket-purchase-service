@@ -12,6 +12,7 @@ import { AccessTokenService } from 'services/accessToken'
 import { HttpStatusCode } from 'types/http'
 import { configuration } from 'config/index'
 import { authUserValidator, newUserValidator } from 'utils/validators'
+import { getUserDto } from 'types/models/user'
 
 export class UserController {
   app: App
@@ -59,9 +60,11 @@ export class UserController {
         updated_at: now,
       })
 
-      return res
-        .status(HttpStatusCode.OK)
-        .json({ status: 1, message: 'sign-up success!', data: user })
+      return res.status(HttpStatusCode.OK).json({
+        status: 1,
+        message: 'sign-up success!',
+        data: getUserDto(user),
+      })
     } catch (e) {
       next(e)
     }
@@ -114,7 +117,7 @@ export class UserController {
       return res.status(HttpStatusCode.OK).json({
         status: 1,
         message: 'auth success!',
-        data: user,
+        data: getUserDto(user),
         token: acsToken.token,
       })
     } catch (e) {
