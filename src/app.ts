@@ -6,6 +6,7 @@ import express, {
   Response,
 } from 'express'
 import cors from 'cors'
+import helmet from 'helmet'
 import bodyParser from 'body-parser'
 import { JsonResponse } from './types'
 import moment from 'moment'
@@ -24,8 +25,9 @@ const accessTokenService = new AccessTokenService(accessTokenRepository)
 
 import { UserService } from 'services/user'
 import { UserRepository } from 'services/user/user.repository'
-import { AUTH_USER_API, HEALTH, NEW_USER_API } from 'data/route'
+import { HEALTH } from 'data/route'
 import { ValidationChain, validationResult } from 'express-validator'
+import { NO_AUTH_PATHS } from 'data/constants'
 const userRepository = new UserRepository()
 const userService = new UserService(userRepository)
 
@@ -122,17 +124,12 @@ export class App {
     this.route(HEALTH, this.healthCheck, [])
 
     app.use(cors({ origin: '*' }))
+    app.use(helmet())
     app.use(bodyParser.json())
     app.use(useragent.express())
 
     for (const routePath in this.routeMap) {
-      if (
-        [
-          this.apiPrefix + HEALTH,
-          this.apiPrefix + NEW_USER_API,
-          this.apiPrefix + AUTH_USER_API,
-        ].includes(routePath)
-      ) {
+      if (NO_AUTH_PATHS.includes(routePath)) {
         app.use(
           routePath,
           this.routeMap[routePath].validator,
