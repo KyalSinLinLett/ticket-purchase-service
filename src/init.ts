@@ -1,17 +1,17 @@
-import { App } from "./app";
-import { configuration } from "config";
-import { initModels } from "db/init";
+import { App } from './app'
+import { configuration } from 'config'
+import { initModels } from 'db/init'
 
-import { UserController } from "controllers/UserController";
-import { EventController } from "controllers/EventController";
-import { TicketController } from "controllers/TicketController";
+import { UserController } from 'controllers/UserController'
+import { EventController } from 'controllers/EventController'
+import { TicketController } from 'controllers/TicketController'
 import {
   accessTokenService,
   eventService,
   ticketCategoryService,
   ticketService,
-  userService
-} from "utils/DI/container";
+  userService,
+} from 'utils/DI/container'
 
 const {
   dbHost,
@@ -22,10 +22,10 @@ const {
   dbMaxConnection,
   serviceName,
   version,
-} = configuration;
+} = configuration
 
 const app = new App(
-  "/ticket-api",
+  '/ticket-api',
   version,
   serviceName,
   dbHost,
@@ -36,11 +36,11 @@ const app = new App(
   dbMaxConnection,
   initModels,
   false,
-  false
-);
+  false,
+)
 
-new UserController(app, userService, accessTokenService);
-new EventController(app, eventService, ticketCategoryService);
-new TicketController(app, ticketService, ticketCategoryService);
+new UserController(app, userService, accessTokenService)
+new EventController(app, eventService, ticketCategoryService)
+new TicketController(app, ticketService, ticketCategoryService)
 
-export { app };
+export { app }

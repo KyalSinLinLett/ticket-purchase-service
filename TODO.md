@@ -13,5 +13,5 @@ optimization - pagination, indexing
 
 [should have]
 [DONE]service layer tests - unit
-controller layer tests - integration
+[DONE]controller layer tests - integration
 

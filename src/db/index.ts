@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Sequelize } from 'sequelize'
 
 export const loadSequelize = async (
   dbHost: string,
@@ -7,14 +7,14 @@ export const loadSequelize = async (
   dbUsn: string,
   dbPassword: string,
   poolMax: number,
-  isEnableLogging: boolean
+  isEnableLogging: boolean,
 ): Promise<Sequelize> => {
-  const poolMaxCon = poolMax ?? 2;
+  const poolMaxCon = poolMax ?? 2
 
   return new Sequelize(dbName, dbUsn, dbPassword, {
     host: dbHost,
     port: dbPort,
-    dialect: "postgres",
+    dialect: 'postgres',
     pool: {
       max: poolMaxCon,
       min: 0,
@@ -23,10 +23,10 @@ export const loadSequelize = async (
       evict: 300000,
     },
     define: {
-      charset: "utf8mb4_unicode_ci",
+      charset: 'utf8mb4_unicode_ci',
       underscored: true,
     },
     sync: { force: false },
     logging: isEnableLogging,
-  });
-};
+  })
+}
