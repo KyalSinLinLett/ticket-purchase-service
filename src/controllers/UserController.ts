@@ -1,11 +1,11 @@
 import { App } from "app";
+import moment from "moment";
 import { RequestHandler } from "express";
 import { Details } from "express-useragent";
-import moment from "moment";
 import { JsonResponse } from "types/index";
 import { AUTH_USER_API, NEW_USER_API } from "data/route";
 import { UserService } from "services/user";
-import { CreationOptional, FindOptions, InferAttributes } from "sequelize";
+import { FindOptions, InferAttributes } from "sequelize";
 import { AccessToken, User } from "db/init";
 import { encrypt, generateHash, validateHash } from "utils/index";
 import { AccessTokenService } from "services/accessToken";
@@ -85,7 +85,7 @@ export class UserController {
 
         user = await this.userService.updateUser(user.id, { last_login_at: moment().toDate() } as InferAttributes<User>)
 
-        // remove this block if wanna allow multiple logins for same user
+        // remove this block if need to allow multiple logins for same user
         const isTknExist = await this.accessTokenService.getAccessToken({ where: { user_id: user.id, invalidated: false } });
         if (!!isTknExist) {
             await this.accessTokenService.updateAccessToken(isTknExist.token, { invalidated: true } as InferAttributes<AccessToken>)

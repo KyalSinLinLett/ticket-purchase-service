@@ -47,7 +47,6 @@ export class TicketController {
         return res.status(200).json(ticketCategory);
     }
 
-
     getUserPurchasedTicketsApi: RequestHandler = async (req, res, next): Promise<JsonResponse> => {
         // pagination
         const { user_id } = req.body;

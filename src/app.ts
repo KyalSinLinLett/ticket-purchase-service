@@ -11,6 +11,17 @@ import useragent from "express-useragent";
 import { decrypt } from "./utils";
 import { configuration } from "./config";
 
+import { AccessTokenService } from "services/accessToken";
+import { AccessTokenRepository } from "services/accessToken/accessToken.repository";
+const accessTokenRepository = new AccessTokenRepository();
+const accessTokenService = new AccessTokenService(accessTokenRepository);
+
+import { UserService } from "services/user";
+import { UserRepository } from "services/user/user.repository";
+import { AUTH_USER_API, HEALTH, NEW_USER_API } from "data/route";
+const userRepository = new UserRepository();
+const userService = new UserService(userRepository);
+
 export const sequelizeManager: { sequelize: Sequelize | any } = {
   sequelize: null,
 };
@@ -100,15 +111,24 @@ export class App {
   }
 
   initHttp = (app: express.Application) => {
-    /** DEFAULT SERVICE HEALTHCHECK */
-    this.route("/health", this.healthCheck);
+    this.route(HEALTH, this.healthCheck);
 
     app.use(cors({ origin: "*" }));
     app.use(bodyParser.json());
     app.use(useragent.express());
 
     for (const routePath in this.routeMap) {
-      app.use(routePath, this.routeMap[routePath].handler);
+      if (
+        [
+          this.apiPrefix + HEALTH,
+          this.apiPrefix + NEW_USER_API,
+          this.apiPrefix + AUTH_USER_API
+        ].includes(routePath)
+      ) {
+        app.use(routePath, this.routeMap[routePath].handler);
+      } else {
+        app.use(routePath, this.authMiddleware, this.routeMap[routePath].handler);
+      }
     }
 
     app.use(this.globalErrorHandler);
@@ -156,10 +176,36 @@ export class App {
     }
 
     try {
-      // perform token validation
+      const decToken = decrypt(token as string, Buffer.from(configuration.encryptionKey, "base64"))
+      const user = await userService.getUserById(decToken)
+      if (!user) {
+        res
+          .status(HttpStatusCode.UNAUTHORIZED)
+          .send({ status: 0, message: "invalid token!" });
+        return;
+      }
+
+      const acsTkn = await accessTokenService.getAccessToken({ where: { token: token as string, user_id: user.id, invalidated: false } })
+      if (!acsTkn) {
+        res
+          .status(HttpStatusCode.UNAUTHORIZED)
+          .send({ status: 0, message: "invalid token!" });
+        return;
+      }
+
+      const hasExpired = moment(acsTkn.expiry).isSameOrBefore(moment().toDate());
+      if (hasExpired) {
+        res
+          .status(HttpStatusCode.UNAUTHORIZED)
+          .send({ status: 0, message: "expired token!" });
+        return;
+      }
       next();
     } catch (error) {
-      console.error(error.message)
+      res
+        .status(HttpStatusCode.UNAUTHORIZED)
+        .send({ status: 0, message: "invalid token!" });
+      return;
     }
   };
 

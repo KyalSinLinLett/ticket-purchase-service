@@ -1,15 +1,19 @@
 import { App } from "app";
-import { RequestHandler } from "express";
-import { Details } from "express-useragent";
 import moment from "moment";
-import { HttpStatusCode } from "types/http";
+import { RequestHandler } from "express";
 import { JsonResponse } from "types/index";
-import { configuration } from "config";
-import { EDIT_EVENT_DETAILS_API, GET_EVENT_DETAILS_API, GET_EVENT_TICKETS_API, LIST_EVENTS_API, NEW_EVENT_API } from "data/route";
-import { EventDetails } from "types/models/event";
+import { 
+  EDIT_EVENT_DETAILS_API,
+  GET_EVENT_DETAILS_API,
+  LIST_EVENTS_API,
+  NEW_EVENT_API 
+} from "data/route";
 import { EventService } from "services/event";
 import { TicketCategoryService } from "services/ticketCategory";
-import { TicketCategories, TicketCategoryDetails } from "types/models/ticketCategory";
+import { 
+  TicketCategories,
+  TicketCategoryDetails 
+} from "types/models/ticketCategory";
 import { InferAttributes } from "sequelize";
 import { Event } from "db/init";
 
@@ -27,8 +31,6 @@ export class EventController {
     this.ticketCategoryService = ticketCategoryService;
     this.initRoute();
   }
-
-  testHandler: RequestHandler = (req, res, next): void => { }
 
   editEventDetailsApi: RequestHandler = async (req, res, next): Promise<JsonResponse> => {
     const {
@@ -94,12 +96,9 @@ export class EventController {
       updated_at: now
     })
 
-    console.log()
-
     await this.ticketCategoryService.createBulkTicketCategory(reqTicketCategories.map((tc: TicketCategoryDetails) => { return { max_count: tc.max_count, price: tc.price, category: TicketCategories[tc.category], event_id: event.id } }))
 
     const result = await this.eventService.getEventById(event.id);
-    console.log(result)
 
     return res.status(200).json(result);
   }
