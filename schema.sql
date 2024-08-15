@@ -57,3 +57,13 @@ CREATE table IF NOT exists tickets (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (ticket_category_id) REFERENCES ticket_categories(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT exists access_token (
+    token VARCHAR(255) PRIMARY KEY,
+    user_id UUID NOT NULL,
+    expiry TIMESTAMP,
+    invalidated BOOLEAN DEFAULT false NOT NULL,
+    user_agent TEXT,
+    registration_datetime TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

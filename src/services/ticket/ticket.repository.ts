@@ -1,5 +1,5 @@
 import { Ticket } from "db/init";
-import { InferAttributes } from "sequelize";
+import { FindOptions, InferAttributes } from "sequelize";
 import { IGenericRepository } from "types/index";
 
 export class TicketRepository implements IGenericRepository<Ticket> {
@@ -16,8 +16,12 @@ export class TicketRepository implements IGenericRepository<Ticket> {
         return await this.ticketModel.findByPk(id);
     }
 
-    async findAll() {
-        return await this.ticketModel.findAll();
+    async findAll(filter: FindOptions<Ticket>) {
+        return await this.ticketModel.findAll(filter);
+    }
+
+    async findOne(option: FindOptions<Ticket>) {
+        return await this.ticketModel.findOne(option);
     }
 
     async update(id: string, updateData: InferAttributes<Ticket>) {
@@ -36,5 +40,3 @@ export class TicketRepository implements IGenericRepository<Ticket> {
         return null;
     }
 }
-
-module.exports = TicketRepository;

@@ -1,5 +1,5 @@
 import { User } from "db/init";
-import { InferAttributes, InferCreationAttributes } from "sequelize";
+import { FindOptions, InferAttributes, InferCreationAttributes } from "sequelize";
 import { IGenericRepository } from "types/index";
 
 export class UserRepository implements IGenericRepository<User> {
@@ -10,6 +10,10 @@ export class UserRepository implements IGenericRepository<User> {
 
     async create(data: InferAttributes<User>) {
         return await this.userModel.create(data);
+    }
+
+    async findOne(conditions: FindOptions<User>) {
+        return await this.userModel.findOne(conditions);
     }
 
     async findById(id: string) {
@@ -36,5 +40,3 @@ export class UserRepository implements IGenericRepository<User> {
         return null;
     }
 }
-
-module.exports = UserRepository;

@@ -1,16 +1,19 @@
 import moment from 'moment';
-import { Model, DataTypes, Sequelize, InferAttributes, InferCreationAttributes } from 'sequelize';
+import { Model, DataTypes, Sequelize, InferAttributes, InferCreationAttributes, NonAttribute } from 'sequelize';
+import { TicketCategory } from './TicketCategory';
 
 export class Event extends Model<InferAttributes<Event>, InferCreationAttributes<Event>> {
-    declare id: string;
-    declare name: string;
+    declare id?: string;
+    declare name?: string;
     declare description?: string;
-    declare start_time: Date;
-    declare end_time: Date;
-    declare venue: string;
-    declare created_by: string;
-    declare created_at: Date;
-    declare updated_at: Date;
+    declare start_time?: Date;
+    declare end_time?: Date;
+    declare venue?: string;
+    declare created_by?: string;
+    declare created_at?: Date;
+    declare updated_at?: Date;
+
+    declare ticketCategories: NonAttribute<TicketCategory[]>
 }
 
 export const init = (sequelize: Sequelize): void => {

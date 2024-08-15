@@ -14,7 +14,8 @@ const {
   DB_MAX_CONNECTION,
   VERSION,
   SERVICE_NAME,
-  ENABLE_DB_LOGGING
+  ENABLE_DB_LOGGING,
+  TOKEN_ENC_KEY
 } = process.env;
 
 const configuration = {
@@ -28,8 +29,7 @@ const configuration = {
   serviceName: SERVICE_NAME || "ticket-purchase-service",
   version: VERSION || "0.0.1",
   enableSqlLogging: ENABLE_DB_LOGGING || false,
+  encryptionKey: TOKEN_ENC_KEY || ""
 };
-
-console.log("app config...\n", configuration)
 
 export { configuration };

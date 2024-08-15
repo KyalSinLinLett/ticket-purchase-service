@@ -2,7 +2,7 @@ import moment from 'moment';
 import { Model, DataTypes, Sequelize, InferAttributes, InferCreationAttributes } from 'sequelize';
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
-    declare id: string;
+    declare id?: string;
     declare email: string;
     declare password_hash: string;
     declare first_name: string;
@@ -78,6 +78,16 @@ export const init = (sequelize: Sequelize): void => {
             tableName: 'users',
             timestamps: false,
             underscored: true,
+            hooks: {
+                beforeCreate: async (user, options) => {
+                    const existingUser = await User.findOne({
+                        where: { email: user.email },
+                    });
+                    if (existingUser) {
+                        throw new Error("email already exists!");
+                    }
+                },
+            },
         }
     );
 }

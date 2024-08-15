@@ -1,4 +1,4 @@
-import { InferAttributes } from "sequelize";
+import { InferAttributes, Optional } from "sequelize";
 import { TicketCategoryRepository } from "./ticketCategory.repository";
 import { TicketCategory } from "db/init";
 
@@ -11,6 +11,10 @@ export class TicketCategoryService {
 
     async createTicketCategory(data: InferAttributes<TicketCategory>) {
         return await this.ticketCategoryRepository.create(data);
+    }
+
+    async createBulkTicketCategory(data: InferAttributes<TicketCategory>[]) {
+        return await this.ticketCategoryRepository.createBulk(data);
     }
 
     async getTicketGategoryById(id: string) {
@@ -29,5 +33,3 @@ export class TicketCategoryService {
         return await this.ticketCategoryRepository.delete(id);
     }
 }
-
-module.exports = TicketCategoryService;

@@ -12,6 +12,10 @@ export class TicketCategoryRepository implements IGenericRepository<TicketCatego
         return await this.ticketCategoryModel.create(data);
     }
 
+    async createBulk(data: InferAttributes<TicketCategory>[]) {
+        return await this.ticketCategoryModel.bulkCreate(data);
+    }
+
     async findById(id: string) {
         return await this.ticketCategoryModel.findByPk(id);
     }
@@ -36,5 +40,3 @@ export class TicketCategoryRepository implements IGenericRepository<TicketCatego
         return null;
     }
 }
-
-module.exports = TicketCategoryRepository;

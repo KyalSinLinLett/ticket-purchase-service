@@ -1,3 +1,5 @@
+import { UserService } from "services/user";
+
 export type UserDetails = {
     id: string;
     email: string;
@@ -12,3 +14,5 @@ export type UserDetails = {
     created_at: Date;
     updated_at: Date;
 }
+
+export type TUserService = typeof UserService;

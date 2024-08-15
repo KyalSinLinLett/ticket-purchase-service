@@ -3,6 +3,7 @@ import { Sequelize } from "sequelize";
 import { User, init as initUser } from "./models/User";
 import { Event, init as initEvent } from "./models/Event";
 import { Ticket, init as initTicket } from "./models/Ticket";
+import { AccessToken, init as initAccessToken } from "./models/AccessToken";
 import { TicketCategory, init as initTicketCategory } from "./models/TicketCategory"
 
 export const setupAssociations = (): void => {
@@ -55,6 +56,17 @@ export const setupAssociations = (): void => {
         foreignKey: 'event_id',
         as: 'event',
     });
+
+    AccessToken.belongsTo(User, {
+        foreignKey: "user_id",
+        as: "user"
+    });
+
+    User.hasOne(AccessToken, {
+        sourceKey: "id",
+        foreignKey: "user_id",
+        as: "accessToken"
+    });
 }
 
 export const getSequelize = (): Sequelize => sequelizeManager.sequelize;
@@ -64,6 +76,7 @@ export const initModels = (seq: Sequelize): void => {
     initEvent(seq);
     initTicket(seq);
     initTicketCategory(seq);
+    initAccessToken(seq);
     setupAssociations();
 };
 
@@ -71,5 +84,6 @@ export {
     User,
     Event,
     Ticket,
-    TicketCategory
+    TicketCategory,
+    AccessToken
 };

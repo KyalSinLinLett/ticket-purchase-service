@@ -88,7 +88,6 @@ export class App {
     this.apiPrefix = apiPrefix;
     this.version = version;
     this.serviceName = serviceName;
-    // mysql
     this.dbHost = dbHost;
     this.dbPort = dbPort;
     this.dbName = dbName;
@@ -107,6 +106,11 @@ export class App {
     app.use(cors({ origin: "*" }));
     app.use(bodyParser.json());
     app.use(useragent.express());
+
+    for (const routePath in this.routeMap) {
+      app.use(routePath, this.routeMap[routePath].handler);
+    }
+
     app.use(this.globalErrorHandler);
     app.use(this.apiErrorHandler);
     app.listen(process.env.PORT || 3010, () => {

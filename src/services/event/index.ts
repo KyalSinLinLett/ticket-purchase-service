@@ -29,5 +29,3 @@ export class EventService {
         return await this.eventRepository.delete(id);
     }
 }
-
-module.exports = EventService;

@@ -3,6 +3,7 @@ TODO:
 [must have]
 routes
 controller
+DTO for presentation layer
 validation middleware
 authentication middleware
 security middleware - helmet, rate limiting

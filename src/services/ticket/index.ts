@@ -1,4 +1,4 @@
-import { InferAttributes } from "sequelize";
+import { FindOptions, InferAttributes } from "sequelize";
 import { TicketRepository } from "./ticket.repository";
 import { Ticket } from "db/init";
 
@@ -17,8 +17,12 @@ export class TicketService {
         return await this.ticketRepository.findById(id);
     }
 
-    async getAllTickets() {
-        return await this.ticketRepository.findAll();
+    async getTicket(options: FindOptions<Ticket>) {
+        return await this.ticketRepository.findOne(options);
+    }
+
+    async getAllTickets(filter: FindOptions<Ticket>) {
+        return await this.ticketRepository.findAll(filter);
     }
 
     async updateTicket(id: string, updateData: InferAttributes<Ticket>) {
@@ -29,5 +33,3 @@ export class TicketService {
         return await this.ticketRepository.delete(id);
     }
 }
-
-module.exports = TicketService;
