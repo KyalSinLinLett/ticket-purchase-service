@@ -16,12 +16,12 @@ export class AccessToken extends Model<
     InferAttributes<AccessToken>,
     InferCreationAttributes<AccessToken>
 > {
-    declare token: string;
-    declare user_id: ForeignKey<User["id"]>;
-    declare expiry: Date;
-    declare invalidated: boolean;
-    declare user_agent: string;
-    declare registration_datetime: Date;
+    declare token?: string;
+    declare user_id?: ForeignKey<User["id"]>;
+    declare expiry?: Date;
+    declare invalidated?: boolean;
+    declare user_agent?: string;
+    declare registration_datetime?: Date;
 }
 
 export const init = (sequelize: Sequelize): void => {

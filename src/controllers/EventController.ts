@@ -58,8 +58,6 @@ export class EventController {
         .status(HttpStatusCode.BAD_REQUEST)
         .json({ status: 0, message: error.message });
     }
-
-    return res.status(200).json(event);
   }
 
   listEventsApi: RequestHandler = async (req, res, next): Promise<JsonResponse> => {

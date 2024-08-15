@@ -4,17 +4,17 @@ import { isValidEmail, isValidPhoneNumber } from 'utils/validators';
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     declare id?: string;
-    declare email: string;
-    declare password_hash: string;
-    declare first_name: string;
-    declare last_name: string;
-    declare phone_number: string;
-    declare dob: Date;
-    declare country: string;
-    declare last_login_at: Date;
-    declare is_active: boolean;
-    declare created_at: Date;
-    declare updated_at: Date;
+    declare email?: string;
+    declare password_hash?: string;
+    declare first_name?: string;
+    declare last_name?: string;
+    declare phone_number?: string;
+    declare dob?: Date;
+    declare country?: string;
+    declare last_login_at?: Date;
+    declare is_active?: boolean;
+    declare created_at?: Date;
+    declare updated_at?: Date;
 }
 
 export const init = (sequelize: Sequelize): void => {

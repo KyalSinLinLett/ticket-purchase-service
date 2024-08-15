@@ -6,8 +6,8 @@
   "scripts": {
     "start": "npx nodemon",
     "build": "rm -f -r dist && tsc --project tsconfig.json && tsc-alias",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "test-one": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --detectOpenHandles",
+    "test-one": "jest --detectOpenHandles test/services/event.service.test.ts"
   },
   "keywords": [],
   "author": "alexsin0012@gmail.com",
@@ -45,10 +45,18 @@
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.5",
+    "@types/chai": "^4.3.17",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/express-useragent": "^1.0.5",
+    "@types/jest": "^29.5.12",
     "@types/mongoose": "^5.11.97",
+    "@types/sinon": "^17.0.3",
+    "chai": "^5.1.1",
+    "jest": "^29.7.0",
+    "sinon": "^18.0.0",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.4",
     "tsc-alias": "1.6.5"
   }
 }

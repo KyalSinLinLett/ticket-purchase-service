@@ -12,6 +12,6 @@ security middleware - helmet, rate limiting
 optimization - pagination, indexing
 
 [should have]
-service layer tests - unit / integration
-controller layer tests - unit / integration
+[DONE]service layer tests - unit
+controller layer tests - integration
 

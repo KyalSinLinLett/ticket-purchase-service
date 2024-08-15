@@ -1,3 +1,5 @@
+const API_PREFIX = "/ticket-api"
+
 const EVENT_PREFIX = "/event";
 const NEW_EVENT_API = EVENT_PREFIX + "/new";
 const GET_EVENT_DETAILS_API = EVENT_PREFIX + "/detail";
@@ -17,6 +19,7 @@ const GET_USER_PURCHASED_TICKETS = USER_PREFIX + "/tickets";
 const HEALTH = "/health";
 
 export {
+  API_PREFIX,
   NEW_EVENT_API,
   GET_EVENT_DETAILS_API,
   LIST_EVENTS_API,

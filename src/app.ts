@@ -8,7 +8,7 @@ import { loadSequelize } from "./db";
 import { Sequelize } from "sequelize";
 import useragent from "express-useragent";
 
-import { decrypt } from "./utils";
+import { decrypt, encrypt } from "./utils";
 import { configuration } from "./config";
 
 import { AccessTokenService } from "services/accessToken";
@@ -51,9 +51,7 @@ export const initSQL = async (
     console.log("db initialized...")
     try {
       await sequelizeManager.sequelize.authenticate();
-      console.log('db connection established...');
     } catch (error) {
-      console.error('unable to connect to the database:', error);
     }
   } else {
     sequelizeManager.sequelize.connectionManager.initPools();
@@ -153,6 +151,7 @@ export class App {
       );
       this.app = app;
       this.initHttp(app);
+      return app;
     } catch (e) {
       console.error(
         `Server process failed to initialize.\n${JSON.stringify(e.message)}`
