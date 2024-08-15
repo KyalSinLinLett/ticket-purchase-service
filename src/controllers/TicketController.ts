@@ -67,7 +67,7 @@ export class TicketController {
     next,
   ): Promise<JsonResponse> => {
     try {
-      const { user_id } = req.body
+      const { req_user_id: user_id } = req.body
 
       const tickets = await this.ticketService.getAllTickets(
         user_id ? { where: { user_id } } : {},
@@ -111,30 +111,31 @@ export class TicketController {
     next,
   ): Promise<JsonResponse> => {
     try {
-      const { ticket_category_id, user_id } = req.body
+      const { ticket_category_id, req_user_id } = req.body
 
       const options: FindOptions<Ticket> = {
-        where: { ticket_category_id, user_id },
+        where: { ticket_category_id, user_id: req_user_id },
       }
 
       const ticketExists = await this.ticketService.getTicket(options)
 
-      if (ticketExists) return res.status(400).json({})
+      if (ticketExists) throw new Error('user already bought the ticket!')
 
       const ticketCategory =
         await this.ticketCategoryService.getTicketGategoryById(
           ticket_category_id,
         )
 
-      if (!ticketCategory) return res.status(400).json({})
+      if (!ticketCategory)
+        throw new Error('invalid ticket category id provided!')
 
       const maxCount = ticketCategory.max_count
 
-      if (maxCount <= 0) return res.status(400).json({})
+      if (maxCount <= 0) throw new Error('tickets sold out')
 
       const purchasedTicket = await this.ticketService.createTicket({
         event_id: ticketCategory.event_id,
-        user_id,
+        user_id: req_user_id,
         ticket_category_id,
         price: ticketCategory.price,
         purchased_at: moment().toDate(),

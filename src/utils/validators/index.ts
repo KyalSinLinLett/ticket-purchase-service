@@ -44,7 +44,7 @@ export const editTicketCategoryValidator = [
 ]
 
 export const userPurchasedTicketsValidator = [
-  check('user_id').isUUID().withMessage('Must be a valid UUID'),
+  // check('user_id').optional().withMessage('Must be a valid UUID'),
 ]
 
 export const getEventTicketsValidator = [
@@ -59,8 +59,6 @@ export const purchaseTicketValidator = [
   check('ticket_category_id')
     .isUUID()
     .withMessage('ticket_category_id must be a valid UUID'),
-
-  check('user_id').isUUID().withMessage('user_id must be a valid UUID'),
 ]
 
 export const newEventValidator = [

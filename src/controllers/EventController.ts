@@ -46,7 +46,21 @@ export class EventController {
     next,
   ): Promise<JsonResponse> => {
     try {
-      const { id, name, description, start_time, end_time, venue } = req.body
+      const {
+        id,
+        name,
+        description,
+        start_time,
+        end_time,
+        venue,
+        req_user_id,
+      } = req.body
+
+      const currEvent = await this.eventService.getEventById(id)
+      if (!currEvent) throw new Error('invalid event id')
+
+      if (currEvent.created_by !== req_user_id)
+        throw new Error('user unauthorized to edit this event!')
 
       const updateData: InferAttributes<Event> = {
         updated_at: moment().toDate(),
@@ -75,7 +89,7 @@ export class EventController {
     next,
   ): Promise<JsonResponse> => {
     try {
-      // todo: add filters for the listing + pagination
+      // improvement: add more filters for the listing + pagination
       const { name } = req.body
 
       const events = await this.eventService.getAllEvents(name)

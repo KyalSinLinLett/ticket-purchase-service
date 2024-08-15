@@ -14,7 +14,7 @@ import { loadSequelize } from './db'
 import { Sequelize } from 'sequelize'
 import useragent from 'express-useragent'
 
-import { decrypt, encrypt } from './utils'
+import { decrypt } from './utils'
 import { configuration } from './config'
 
 import { AccessTokenService } from 'services/accessToken'
@@ -54,10 +54,11 @@ export const initSQL = async (
       isEnableSqlLog,
     )
     !!modelConfig && modelConfig(sequelizeManager.sequelize)
-    console.log('db initialized...')
     try {
       await sequelizeManager.sequelize.authenticate()
-    } catch (error) {}
+    } catch (error) {
+      console.error(error)
+    }
   } else {
     sequelizeManager.sequelize.connectionManager.initPools()
     if (
@@ -244,6 +245,7 @@ export class App {
           .send({ status: 0, message: 'expired token!' })
         return
       }
+      req.body = { ...req.body, req_user_id: user.id }
       next()
     } catch (error) {
       res
@@ -263,7 +265,6 @@ export class App {
   }
 
   globalErrorHandler: ErrorRequestHandler = (err, req, res, next): void => {
-    console.log('ERR>>', err)
     res
       .status(HttpStatusCode.BAD_REQUEST)
       .send({ status: 0, message: err.message })

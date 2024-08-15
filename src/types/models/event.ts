@@ -1,4 +1,10 @@
-import { Event } from 'db/init'
+import { Event, TicketCategory } from 'db/init'
+import {
+  getTicketCategoryDto,
+  ITicketCategoryDetails,
+  TicketCategories,
+  TicketCategoryDetails,
+} from './ticketCategory'
 
 export type EventDetails = {
   id: string
@@ -22,6 +28,7 @@ export interface IEventDetails {
   createdBy: string
   createdAt: Date
   updatedAt: Date
+  ticketCategories: ITicketCategoryDetails[]
 }
 
 export const getEventDto = (event: Event): IEventDetails => {
@@ -35,5 +42,8 @@ export const getEventDto = (event: Event): IEventDetails => {
     createdBy: event.created_by,
     createdAt: event.created_at,
     updatedAt: event.updated_at,
+    ticketCategories: event.ticketCategories.map((tC: TicketCategory) =>
+      getTicketCategoryDto(tC),
+    ),
   }
 }
