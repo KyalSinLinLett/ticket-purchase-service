@@ -47,6 +47,9 @@ export const init = (sequelize: Sequelize): void => {
             price: {
                 type: DataTypes.DECIMAL(10, 2),
                 allowNull: false,
+                validate: {
+                    isNumeric: { msg: "Ticket price must me numeric" }
+                }
             },
             purchased_at: {
                 type: DataTypes.DATE,

@@ -1,6 +1,6 @@
-import { InferAttributes } from "sequelize";
+import { FindOptions, InferAttributes, Op } from "sequelize";
 import { EventRepository } from "./event.repository";
-import { Event } from "db/init";
+import { Event, TicketCategory } from "db/init";
 
 export class EventService {
     eventRepository: EventRepository;
@@ -17,8 +17,14 @@ export class EventService {
         return await this.eventRepository.findById(id);
     }
 
-    async getAllEvents() {
-        return await this.eventRepository.findAll();
+    async getAllEvents(name?: string) {
+        const whereClause = {};
+        if (name) whereClause["name"] = { [Op.like]: `%${name}%` };
+
+        return await this.eventRepository.findAll({
+            where: whereClause,
+            include: { model: TicketCategory, as: "ticketCategories" }
+        });
     }
 
     async updateEvent(id: string, updateData: InferAttributes<Event>) {

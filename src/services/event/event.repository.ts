@@ -1,5 +1,5 @@
 import { Event, TicketCategory } from "db/init";
-import { InferAttributes } from "sequelize";
+import { FindOptions, InferAttributes } from "sequelize";
 import { IGenericRepository } from "types/index";
 
 export class EventRepository implements IGenericRepository<Event> {
@@ -16,8 +16,8 @@ export class EventRepository implements IGenericRepository<Event> {
         return await this.eventModel.findByPk(id, { include: { model: TicketCategory, as: "ticketCategories" } });
     }
 
-    async findAll() {
-        return await this.eventModel.findAll({ include: { model: TicketCategory, as: "ticketCategories" } });
+    async findAll(filter: FindOptions<Event>) {
+        return await this.eventModel.findAll(filter);
     }
 
     async update(id: string, updateData: InferAttributes<Event>) {

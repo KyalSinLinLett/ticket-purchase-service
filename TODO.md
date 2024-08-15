@@ -1,11 +1,11 @@
 TODO:
 
 [must have]
-routes
-controller
+[DONE]routes
+[DONE]controller
 DTO for presentation layer
-validation middleware
-authentication middleware
+[DONE]validation - model level / controller level
+[DONE]authentication middleware
 security middleware - helmet, rate limiting
 
 [should have]

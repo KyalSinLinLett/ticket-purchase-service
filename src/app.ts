@@ -1,4 +1,4 @@
-import express, { ErrorRequestHandler, RequestHandler } from "express";
+import express, { ErrorRequestHandler, NextFunction, Request, RequestHandler, Response } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { JsonResponse } from "./types";
@@ -19,6 +19,7 @@ const accessTokenService = new AccessTokenService(accessTokenRepository);
 import { UserService } from "services/user";
 import { UserRepository } from "services/user/user.repository";
 import { AUTH_USER_API, HEALTH, NEW_USER_API } from "data/route";
+import { ValidationChain, validationResult } from "express-validator";
 const userRepository = new UserRepository();
 const userService = new UserService(userRepository);
 
@@ -67,7 +68,7 @@ export const initSQL = async (
 };
 
 export class App {
-  routeMap: Record<string, { handler: RequestHandler }> = {};
+  routeMap: Record<string, { handler: RequestHandler, validator?: ValidationChain[] }> = {};
   apiPrefix = "";
   version = "";
   serviceName = "";
@@ -111,7 +112,7 @@ export class App {
   }
 
   initHttp = (app: express.Application) => {
-    this.route(HEALTH, this.healthCheck);
+    this.route(HEALTH, this.healthCheck, []);
 
     app.use(cors({ origin: "*" }));
     app.use(bodyParser.json());
@@ -125,14 +126,14 @@ export class App {
           this.apiPrefix + AUTH_USER_API
         ].includes(routePath)
       ) {
-        app.use(routePath, this.routeMap[routePath].handler);
+        app.use(routePath, this.routeMap[routePath].validator, this.validate, this.routeMap[routePath].handler);
       } else {
-        app.use(routePath, this.authMiddleware, this.routeMap[routePath].handler);
+        app.use(routePath, this.authMiddleware, this.routeMap[routePath].validator, this.validate, this.routeMap[routePath].handler);
       }
     }
 
-    app.use(this.globalErrorHandler);
     app.use(this.apiErrorHandler);
+    app.use(this.globalErrorHandler);
     app.listen(process.env.PORT || 3010, () => {
       console.log(`listening on port: ${process.env.PORT || 3010}`);
     });
@@ -154,16 +155,26 @@ export class App {
       this.initHttp(app);
     } catch (e) {
       console.error(
-        `Server process failed to initialize.\n${JSON.stringify(e)}`
+        `Server process failed to initialize.\n${JSON.stringify(e.message)}`
       );
       process.exit(1);
     }
   };
 
-  route = (path: string, funcHandler: RequestHandler): void => {
+  route = (path: string, funcHandler: RequestHandler, validator?: ValidationChain[]): void => {
     this.routeMap[this.apiPrefix + path] = {
       handler: funcHandler,
+      validator: validator
     };
+  };
+
+  validate: RequestHandler = (req: Request, res: Response, next: NextFunction): void | JsonResponse => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(HttpStatusCode.BAD_REQUEST).json({ status: 0, error: errors.array() });
+    }
+    next();
+    return;
   };
 
   authMiddleware: RequestHandler = async (req, res, next): Promise<void> => {
@@ -209,18 +220,21 @@ export class App {
     }
   };
 
-  globalErrorHandler: RequestHandler = (req, res, next): void => {
+  apiErrorHandler: RequestHandler = (req, res, next): void => {
     res.setHeader("Content-type", "application/problem+json");
     res
       .status(HttpStatusCode.BAD_REQUEST)
       .send({ url: req.originalUrl, error: "not-found" });
     next();
+    return;
   };
 
-  apiErrorHandler: ErrorRequestHandler = (err, req, res, next): void => {
+  globalErrorHandler: ErrorRequestHandler = (err, req, res, next): void => {
+    console.log("ERR>>", err)
     res
-      .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
-      .send({ status: 3, message: JSON.stringify(err) });
+      .status(HttpStatusCode.BAD_REQUEST)
+      .send({ status: 0, message: err.message });
+    return;
   };
 
   healthCheck: RequestHandler = (req, res, next): JsonResponse => {

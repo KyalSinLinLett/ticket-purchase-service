@@ -33,10 +33,16 @@ export const init = (sequelize: Sequelize): void => {
             max_count: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
+                validate: {
+                    isNumeric: { msg: "Max count must me numeric" }
+                }
             },
             price: {
                 type: DataTypes.DECIMAL(10, 2),
                 allowNull: false,
+                validate: {
+                    isNumeric: { msg: "Ticket price must me numeric" }
+                }
             },
         },
         {

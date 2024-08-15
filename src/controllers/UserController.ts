@@ -11,6 +11,7 @@ import { encrypt, generateHash, validateHash } from "utils/index";
 import { AccessTokenService } from "services/accessToken";
 import { HttpStatusCode } from "types/http";
 import { configuration } from "config/index";
+import { authUserValidator, newUserValidator } from "utils/validators";
 
 export class UserController {
     app: App;
@@ -28,20 +29,21 @@ export class UserController {
     }
 
     newUserApi: RequestHandler = async (req, res, next): Promise<JsonResponse> => {
-        const {
-            email,
-            password,
-            first_name,
-            last_name,
-            phone_number,
-            dob,
-            country
-        } = req.body;
-
-        const now = moment().toDate();
-        let user;
         try {
-            user = await this.userService.createUser({
+            const {
+                email,
+                password,
+                first_name,
+                last_name,
+                phone_number,
+                dob,
+                country
+            } = req.body;
+
+            
+
+            const now = moment().toDate();
+            const user = await this.userService.createUser({
                 email,
                 password_hash: generateHash(password),
                 first_name,
@@ -54,59 +56,54 @@ export class UserController {
                 created_at: now,
                 updated_at: now
             })
-        } catch (error) {
-            return res
-                .status(HttpStatusCode.BAD_REQUEST)
-                .json({ status: 0, message: error.message });
-        }
 
-        return res
-            .status(HttpStatusCode.OK)
-            .json({ status: 1, message: "sign-up success!", data: user });
+            return res
+                .status(HttpStatusCode.OK)
+                .json({ status: 1, message: "sign-up success!", data: user });
+        } catch (e) {
+            next(e)
+        }
     }
 
     authUserApi: RequestHandler = async (req, res, next): Promise<JsonResponse> => {
-        const { email, password } = req.body;
+        try {
+            const { email, password } = req.body;
 
-        const options: FindOptions<User> = {};
-        if (!!email) options.where = { ...options.where, email };
+            const options: FindOptions<User> = {};
 
-        let user = await this.userService.getUser(options);
+            if (!!email) options.where = { ...options.where, email };
 
-        if (!user)
+            let user = await this.userService.getUser(options);
+
+            if (!user) throw new Error("email does not exist");
+
+            if (!validateHash(password, user.password_hash)) throw new Error("wrong password")
+
+            user = await this.userService.updateUser(user.id, { last_login_at: moment().toDate() } as InferAttributes<User>)
+
+            const token = await this.accessTokenService.getAccessToken({ where: { user_id: user.id, invalidated: false } });
+
+            if (!!token) await this.accessTokenService.updateAccessToken(token.token, { invalidated: true } as InferAttributes<AccessToken>)
+
+            const acsToken = await this.accessTokenService.createAccessToken({
+                token: encrypt(`${user.id}`, Buffer.from(configuration.encryptionKey, 'base64')),
+                user_id: user.id,
+                expiry: moment().add(1, 'week').toDate(),
+                invalidated: false,
+                user_agent: JSON.stringify(req.useragent as Details),
+                registration_datetime: moment().toDate()
+            })
+
             return res
-                .status(HttpStatusCode.BAD_REQUEST)
-                .json({ status: 0, message: "email does not exist!" });
-
-        if (!validateHash(password, user.password_hash))
-            return res
-                .status(HttpStatusCode.BAD_REQUEST)
-                .json({ status: 0, message: "wrong password!" });
-
-        user = await this.userService.updateUser(user.id, { last_login_at: moment().toDate() } as InferAttributes<User>)
-
-        // remove this block if need to allow multiple logins for same user
-        const isTknExist = await this.accessTokenService.getAccessToken({ where: { user_id: user.id, invalidated: false } });
-        if (!!isTknExist) {
-            await this.accessTokenService.updateAccessToken(isTknExist.token, { invalidated: true } as InferAttributes<AccessToken>)
+                .status(HttpStatusCode.OK)
+                .json({ status: 1, message: "auth success!", data: user, token: acsToken.token });
+        } catch (e) {
+            next(e);
         }
-
-        const acsToken = await this.accessTokenService.createAccessToken({
-            token: encrypt(`${user.id}`, Buffer.from(configuration.encryptionKey, 'base64')),
-            user_id: user.id,
-            expiry: moment().add(1, 'week').toDate(),
-            invalidated: false,
-            user_agent: JSON.stringify(req.useragent as Details),
-            registration_datetime: moment().toDate()
-        })
-
-        return res
-            .status(HttpStatusCode.OK)
-            .json({ status: 1, message: "auth success!", data: user, token: acsToken.token });
     }
 
     initRoute = (): void => {
-        this.app.route(NEW_USER_API, this.newUserApi);
-        this.app.route(AUTH_USER_API, this.authUserApi);
+        this.app.route(NEW_USER_API, this.newUserApi, newUserValidator);
+        this.app.route(AUTH_USER_API, this.authUserApi, authUserValidator);
     };
 }

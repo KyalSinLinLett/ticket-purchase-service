@@ -1,18 +1,13 @@
 import { App } from "app";
 import { RequestHandler } from "express";
-import { Details } from "express-useragent";
 import moment from "moment";
-import { HttpStatusCode } from "types/http";
 import { JsonResponse } from "types/index";
-import { configuration } from "config";
-import { EDIT_EVENT_DETAILS_API, EDIT_TICKET_CATEGORY_DETAILS_API, GET_EVENT_DETAILS_API, GET_EVENT_TICKETS_API, GET_USER_PURCHASED_TICKETS, LIST_EVENTS_API, NEW_EVENT_API, PURCHASE_TICKET_API } from "data/route";
-import { EventDetails } from "types/models/event";
-import { EventService } from "services/event";
+import { EDIT_TICKET_CATEGORY_DETAILS_API, GET_EVENT_TICKETS_API, GET_USER_PURCHASED_TICKETS, PURCHASE_TICKET_API } from "data/route";
 import { TicketCategoryService } from "services/ticketCategory";
-import { TicketCategories, TicketCategoryDetails } from "types/models/ticketCategory";
 import { FindOptions, InferAttributes } from "sequelize";
-import { Event, Ticket, TicketCategory } from "db/init";
+import { Ticket, TicketCategory } from "db/init";
 import { TicketService } from "services/ticket";
+import { editTicketCategoryValidator, getEventTicketsValidator, purchaseTicketValidator, userPurchasedTicketsValidator } from "utils/validators";
 
 export class TicketController {
     app: App;
@@ -29,70 +24,74 @@ export class TicketController {
         this.initRoute();
     }
 
-    testHandler: RequestHandler = (req, res, next): void => { }
-
     editTicketCategoryDetailsApi: RequestHandler = async (req, res, next): Promise<JsonResponse> => {
-        const {
-            id,
-            max_count,
-            price
-        } = req.body;
+        try {
+            const {
+                id,
+                max_count,
+                price
+            } = req.body;
 
-        const updateData: InferAttributes<TicketCategory> = {};
-        if (max_count) updateData["max_count"] = max_count;
-        if (price) updateData["price"] = price;
+            const updateData: InferAttributes<TicketCategory> = {};
+            if (max_count) updateData["max_count"] = max_count;
+            if (price) updateData["price"] = price;
 
-        const ticketCategory = await this.ticketCategoryService.updateTicketCategory(id, updateData)
+            const ticketCategory = await this.ticketCategoryService.updateTicketCategory(id, updateData)
 
-        return res.status(200).json(ticketCategory);
+            return res.status(200).json(ticketCategory);
+        } catch (e) { next(e) };
     }
 
     getUserPurchasedTicketsApi: RequestHandler = async (req, res, next): Promise<JsonResponse> => {
-        // pagination
-        const { user_id } = req.body;
+        try {
+            const { user_id } = req.body;
 
-        const tickets = await this.ticketService.getAllTickets(user_id ? { where: { user_id } } : {});
+            const tickets = await this.ticketService.getAllTickets(user_id ? { where: { user_id } } : {});
 
-        return res.status(200).json(tickets)
+            return res.status(200).json(tickets)
+        } catch (e) { console.log(e) }
     }
 
     getEventTicketsApi: RequestHandler = async (req, res, next): Promise<JsonResponse> => {
-        // pagination
-        const { event_id } = req.body;
+        try {
+            const { event_id } = req.body;
 
-        const tickets = await this.ticketService.getAllTickets(event_id ? { where: { event_id } } : {});
+            const tickets = await this.ticketService.getAllTickets(event_id ? { where: { event_id } } : {});
 
-        return res.status(200).json(tickets)
+            return res.status(200).json(tickets)
+        } catch (e) { next(e) };
     }
 
     purchaseTicketApi: RequestHandler = async (req, res, next): Promise<JsonResponse> => {
-        const { ticket_category_id, user_id } = req.body;
+        try {
+            const { ticket_category_id, user_id } = req.body;
 
-        const options: FindOptions<Ticket> = { where: { ticket_category_id, user_id } }
+            const options: FindOptions<Ticket> = { where: { ticket_category_id, user_id } }
 
-        const ticketExists = await this.ticketService.getTicket(options);
+            const ticketExists = await this.ticketService.getTicket(options);
 
-        if (ticketExists) return res.status(400).json({});
+            if (ticketExists) return res.status(400).json({});
 
-        const ticketCategory = await this.ticketCategoryService.getTicketGategoryById(ticket_category_id);
+            const ticketCategory = await this.ticketCategoryService.getTicketGategoryById(ticket_category_id);
 
-        if (!ticketCategory) return res.status(400).json({});
+            if (!ticketCategory) return res.status(400).json({});
 
-        const maxCount = ticketCategory.max_count;
+            const maxCount = ticketCategory.max_count;
 
-        if (maxCount <= 0) return res.status(400).json({});
+            if (maxCount <= 0) return res.status(400).json({});
 
-        const purchasedTicket = await this.ticketService.createTicket({ event_id: ticketCategory.event_id, user_id, ticket_category_id, price: ticketCategory.price, purchased_at: moment().toDate() })
+            const purchasedTicket = await this.ticketService.createTicket({ event_id: ticketCategory.event_id, user_id, ticket_category_id, price: ticketCategory.price, purchased_at: moment().toDate() })
 
-        await this.ticketCategoryService.updateTicketCategory(ticket_category_id, { max_count: maxCount - 1 });
+            await this.ticketCategoryService.updateTicketCategory(ticket_category_id, { max_count: maxCount - 1 });
 
-        return res.status(200).json(purchasedTicket)
+            return res.status(200).json(purchasedTicket)
+        } catch (e) { next(e) }
     }
 
     initRoute = (): void => {
-        this.app.route(GET_EVENT_TICKETS_API, this.getEventTicketsApi);
-        this.app.route(PURCHASE_TICKET_API, this.purchaseTicketApi);
-        this.app.route(GET_USER_PURCHASED_TICKETS, this.getUserPurchasedTicketsApi);
-        this.app.route(EDIT_TICKET_CATEGORY_DETAILS_API, this.editTicketCategoryDetailsApi);
+        this.app.route(GET_EVENT_TICKETS_API, this.getEventTicketsApi, getEventTicketsValidator);
+        this.app.route(PURCHASE_TICKET_API, this.purchaseTicketApi, purchaseTicketValidator);
+        this.app.route(GET_USER_PURCHASED_TICKETS, this.getUserPurchasedTicketsApi, userPurchasedTicketsValidator);
+        this.app.route(EDIT_TICKET_CATEGORY_DETAILS_API, this.editTicketCategoryDetailsApi, editTicketCategoryValidator);
     };
 }

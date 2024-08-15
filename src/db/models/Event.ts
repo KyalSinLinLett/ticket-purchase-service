@@ -27,6 +27,10 @@ export const init = (sequelize: Sequelize): void => {
             name: {
                 type: DataTypes.STRING(255),
                 allowNull: false,
+                validate: {
+                    notNull: { msg: 'Event name must not be null' },
+                    notEmpty: { msg: 'Event name must not be empty' }
+                }
             },
             description: {
                 type: DataTypes.TEXT,
@@ -35,14 +39,24 @@ export const init = (sequelize: Sequelize): void => {
             start_time: {
                 type: DataTypes.DATE,
                 allowNull: false,
+                validate: {
+                    isDate: true
+                }
             },
             end_time: {
                 type: DataTypes.DATE,
                 allowNull: false,
+                validate: {
+                    isDate: true
+                }
             },
             venue: {
                 type: DataTypes.STRING(255),
                 allowNull: false,
+                validate: {
+                    notNull: { msg: 'Venue must not be null' },
+                    notEmpty: { msg: 'Venue must not be empty' }
+                }
             },
             created_by: {
                 type: DataTypes.UUID,
@@ -51,7 +65,7 @@ export const init = (sequelize: Sequelize): void => {
                     model: 'User',
                     key: 'id',
                 },
-                onDelete: 'CASCADE',
+                onDelete: 'CASCADE'
             },
             created_at: {
                 type: DataTypes.DATE,

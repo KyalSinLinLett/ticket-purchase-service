@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { Model, DataTypes, Sequelize, InferAttributes, InferCreationAttributes } from 'sequelize';
+import { isValidEmail, isValidPhoneNumber } from 'utils/validators';
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     declare id?: string;
@@ -28,30 +29,67 @@ export const init = (sequelize: Sequelize): void => {
                 type: DataTypes.STRING(255),
                 allowNull: false,
                 unique: true,
+                validate: {
+                    isValidEmail(value: string) {
+                        if (!isValidEmail(value)) {
+                            throw new Error('Invalid email format!')
+                        }
+                    }
+                }
             },
             password_hash: {
                 type: DataTypes.STRING(255),
                 allowNull: false,
+                validate: {
+                    notNull: { msg: 'Password hash must not be null' },
+                    notEmpty: { msg: 'Password hash must not be empty' }
+                }
             },
             first_name: {
                 type: DataTypes.STRING(255),
                 allowNull: false,
+                validate: {
+                    isAlpha: { msg: 'First name be alphabetical' },
+                    notNull: { msg: 'First name must not be null' },
+                    notEmpty: { msg: 'First name must not be empty' }
+                }
             },
             last_name: {
                 type: DataTypes.STRING(255),
                 allowNull: false,
+                validate: {
+                    isAlpha: { msg: 'Last name be alphabetical' },
+                    notNull: { msg: 'Last name must not be null' },
+                    notEmpty: { msg: 'Last name must not be empty' }
+                }
             },
             phone_number: {
                 type: DataTypes.STRING(255),
                 allowNull: false,
+                validate: {
+                    notNull: true,
+                    notEmpty: true,
+                    isValidPhoneNumber(value: string) {
+                        if (!isValidPhoneNumber(value)) {
+                            throw new Error('Invalid phone number format!')
+                        }
+                    }
+                }
             },
             dob: {
                 type: DataTypes.DATEONLY,
                 allowNull: true,
+                validate: {
+                    isDate: true
+                }
             },
             country: {
                 type: DataTypes.STRING(255),
                 allowNull: false,
+                validate: {
+                    notNull: { msg: 'Country must not be null' },
+                    notEmpty: { msg: 'Country must not be empty' }
+                }
             },
             is_active: {
                 type: DataTypes.BOOLEAN,
